@@ -1,0 +1,21 @@
+# Server dependencies
+server/node_modules/
+
+# Client build output (if using React/Vue/etc.)
+client/dist/
+client/build/
+
+# Server compiled JS (from TypeScript)
+server/dist/
+
+# Env files
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+
+# OS/System files
+.DS_Store
+Thumbs.db
