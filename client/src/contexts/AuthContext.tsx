@@ -15,8 +15,10 @@ interface AuthContextType {
   user: User | null;
   token: string | null;
   loading: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  register: (name: string, email: string, password: string) => Promise<void>;
   loginWithGoogle: () => void;
-  handleGoogleCallback: (token: string) => void; // keep it
+  handleGoogleCallback: (token: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -29,7 +31,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Initialize auth state
+  // Initialize auth state from localStorage
   useEffect(() => {
     const initAuth = async () => {
       const savedToken = localStorage.getItem('token');
@@ -58,16 +60,60 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const login = async (email: string, password: string) => {
+    const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Login failed');
+
+    setUser(data.data.user);
+    setToken(data.data.token);
+    localStorage.setItem('token', data.data.token);
+  };
+
+  const register = async (name: string, email: string, password: string) => {
+    const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Registration failed');
+
+    setUser(data.data.user);
+    setToken(data.data.token);
+    localStorage.setItem('token', data.data.token);
+  };
+
   const loginWithGoogle = () => {
     // Redirect to server Google OAuth route
     window.location.href = `${API_BASE_URL}/api/auth/google`;
   };
 
-  const handleGoogleCallback = (tokenFromUrl: string) => {
-    // Store token from Google OAuth redirect and fetch user profile
-    localStorage.setItem('token', tokenFromUrl);
-    setToken(tokenFromUrl);
-    fetchUserProfile(tokenFromUrl);
+  const handleGoogleCallback = async (tokenFromUrl: string) => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/auth/google/token`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: tokenFromUrl }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Google authentication failed');
+      }
+
+      const data = await res.json();
+      setUser(data.data.user);
+      setToken(data.data.token);
+      localStorage.setItem('token', data.data.token);
+    } catch (err) {
+      console.error('Google callback error:', err);
+      throw err;
+    }
   };
 
   const logout = () => {
@@ -78,7 +124,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, token, loading, loginWithGoogle, handleGoogleCallback, logout }}
+      value={{
+        user,
+        token,
+        loading,
+        login,
+        register,
+        loginWithGoogle,
+        handleGoogleCallback,
+        logout,
+      }}
     >
       {children}
     </AuthContext.Provider>
