@@ -1,7 +1,7 @@
 import { NAVBAR_HEIGHT } from "@/lib/constants";
 import Link from "next/link";
 import React from "react";
-import { Button } from "./ui/button";
+import UserMenu from "./UserMenu";
 
 const Navbar = () => {
   return (
@@ -31,27 +31,8 @@ const Navbar = () => {
         <p className="text-gray-300 hidden md:block">
           Discover your perfect rental apartment with our advaced search
         </p>
-        {/* Buttons */}
-        <div className="flex items-center gap-5">
-            {/* SignIn Btn */}
-          <Link href="/signin">
-            <Button
-              variant="outline"
-              className="text-white border-white bg-transparent hover:bg-white hover:text-zinc-950 rounded-lg"
-            >
-              Sign In
-            </Button>
-          </Link>
-            {/* SignUp Btn */}
-          <Link href="/signup">
-            <Button
-              variant="secondary"
-              className="bg-red-500 hover:bg-white hover:text-zinc-950 rounded-lg"
-            >
-              Sign Up
-            </Button>
-          </Link>
-        </div>
+        {/* User Menu */}
+        <UserMenu />
       </div>
     </div>
   );
