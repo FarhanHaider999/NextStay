@@ -94,24 +94,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const handleGoogleCallback = async (tokenFromUrl: string) => {
+    if (!tokenFromUrl) throw new Error('No token provided');
+
+    setToken(tokenFromUrl);
+    localStorage.setItem('token', tokenFromUrl);
+
     try {
-      const res = await fetch(`${API_BASE_URL}/api/auth/google/token`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: tokenFromUrl }),
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || 'Google authentication failed');
-      }
-
-      const data = await res.json();
-      setUser(data.data.user);
-      setToken(data.data.token);
-      localStorage.setItem('token', data.data.token);
+      await fetchUserProfile(tokenFromUrl);
     } catch (err) {
-      console.error('Google callback error:', err);
+      console.error('Fetch profile after Google login failed:', err);
       throw err;
     }
   };

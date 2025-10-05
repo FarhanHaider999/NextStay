@@ -15,24 +15,22 @@ export default function AuthCallbackPage() {
 
   useEffect(() => {
     const handleCallback = async () => {
+      const token = searchParams.get('token');
+      const success = searchParams.get('success');
+
+      if (!token || success !== 'true') {
+        setError('Authentication failed. Please try again.');
+        setLoading(false);
+        return;
+      }
+
       try {
-        const token = searchParams.get('token');
-        const success = searchParams.get('success');
-
-        if (!token || success !== 'true') {
-          setError('Authentication failed. Please try again.');
-          setLoading(false);
-          return;
-        }
-
-        // Call handleGoogleCallback (it updates state and fetches user)
-        handleGoogleCallback(token);
-
-        // Redirect to dashboard
+        await handleGoogleCallback(token);
         router.push('/dashboard');
       } catch (err) {
-        console.error('Google callback error:', err);
-        setError(err instanceof Error ? err.message : 'Authentication failed');
+        console.error(err);
+        setError('Authentication failed.');
+      } finally {
         setLoading(false);
       }
     };
@@ -46,9 +44,7 @@ export default function AuthCallbackPage() {
         <Card className="max-w-md w-full">
           <CardHeader className="text-center">
             <CardTitle>Authenticating...</CardTitle>
-            <CardDescription>
-              Please wait while we complete your Google sign-in.
-            </CardDescription>
+            <CardDescription>Please wait while we complete your Google sign-in.</CardDescription>
           </CardHeader>
           <CardContent className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
@@ -64,9 +60,7 @@ export default function AuthCallbackPage() {
         <Card className="max-w-md w-full">
           <CardHeader className="text-center">
             <CardTitle className="text-red-600">Authentication Failed</CardTitle>
-            <CardDescription>
-              {error}
-            </CardDescription>
+            <CardDescription>{error}</CardDescription>
           </CardHeader>
           <CardContent className="text-center">
             <Button onClick={() => router.push('/auth/signin')} className="w-full">
