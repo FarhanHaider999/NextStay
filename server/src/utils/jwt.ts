@@ -34,6 +34,7 @@ export const generateRefreshToken = (user: IUser): string => {
   const payload = {
     userId: user._id.toString(),
     email: user.email,
+    userType: user.userType,
   };
 
   const options: SignOptions = { expiresIn: '30d' as StringValue };

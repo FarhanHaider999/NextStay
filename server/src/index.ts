@@ -15,7 +15,7 @@ import cookieParser from "cookie-parser";
 import session from "express-session";
 import passport from "passport";
 import { connectDB } from "./config/db";
-import authRoutes from "./routes/auth";
+import authRoutes from "./routes/authRoutes";
 
 import type { Request, Response } from "express";
 

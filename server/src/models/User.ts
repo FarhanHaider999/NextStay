@@ -12,6 +12,7 @@ export interface IUser extends Document {
   resetPasswordToken?: string | null;
   resetPasswordExpires?: Date | null;
   googleId?: string | null;
+  userType: "tenant" | "manager";
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -41,6 +42,11 @@ const UserSchema: Schema<IUser> = new Schema(
       },
       minlength: [6, "Password must be at least 6 characters"],
       select: false,
+    },
+    userType: {
+      type: String,
+      enum: ["tenant", "manager"],
+      default: "tenant",
     },
     avatar: { type: String, default: null },
     emailVerified: { type: Boolean, default: false },
